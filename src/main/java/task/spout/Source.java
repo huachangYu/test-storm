@@ -76,8 +76,8 @@ public class Source extends BaseRichSpout {
                 } else if (flag == 99) {
                     type = "D"; // 1%
                 }
-                int size = rand.nextInt(1, 100);
-                float fraction = rand.nextFloat(1.0f);
+                int size = rand.nextInt(100) + 1;
+                float fraction = rand.nextFloat();
                 long seed = rand.nextLong();
                 String data = GSON.toJson(new DatasetParam(id++, type, System.currentTimeMillis(), size, fraction, seed));
                 collector.emit(new Values(data));

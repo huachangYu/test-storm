@@ -5,6 +5,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
+import org.apache.storm.StormSubmitter;
 import org.apache.storm.executor.bolt.BoltWeightCalc;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
@@ -20,21 +21,19 @@ public class BenchmarkTopology {
     public static void main(String[] args) throws Exception {
         System.out.println("args=" + Arrays.toString(args));
         Options JDUL = new Options();
-        JDUL.addOption("useThreadPool"   ,true, "useThreadPool");
+        JDUL.addOption("useThreadPool"   ,false, "useThreadPool");
         JDUL.addOption("coreThreads" ,true,  "coreThreads");
         JDUL.addOption("threadPoolStrategy", true, "threadPoolStrategy");
-        JDUL.addOption("runningTimeSecond", true, "runningTimeSecond");
         JDUL.addOption("qps", true, "qps");
         JDUL.addOption("fetchMaxTasks", true, "fetchMaxTasks");
         JDUL.addOption("shuffle", false, "shuffle");
 
         DefaultParser parser = new DefaultParser();
         CommandLine cli = parser.parse(JDUL, args);
-        boolean useThreadPool = cli.hasOption("useThreadPool") && Boolean.parseBoolean(cli.getOptionValue("useThreadPool"));
+        boolean useThreadPool = cli.hasOption("useThreadPool");
         int coreThreads = cli.hasOption("coreThreads") ? Integer.parseInt(cli.getOptionValue("coreThreads")) : 4;
         String threadPoolStrategy = cli.hasOption("threadPoolStrategy") ? cli.getOptionValue("threadPoolStrategy") : BoltWeightCalc.Strategy.Fair.name();
         int fetchMaxTasks = cli.hasOption("fetchMaxTasks") ? Integer.parseInt(cli.getOptionValue("fetchMaxTasks")) : 1;
-        int runningTimeSecond = cli.hasOption("runningTimeSecond") ? Integer.parseInt(cli.getOptionValue("runningTimeSecond")) : 10 * 60;
         int qps = cli.hasOption("qps") ? Integer.parseInt(cli.getOptionValue("qps")) : 1000;
         boolean isShuffle = cli.hasOption("shuffle");
 
@@ -60,11 +59,9 @@ public class BenchmarkTopology {
             conf.setTopologyBoltThreadPoolIds(Arrays.asList("parser", "fetch", "detect"));
         }
 
+//        StormSubmitter.submitTopology(args[0], conf, builder.createTopology());
+
         LocalCluster cluster = new LocalCluster();
         cluster.submitTopology("benchmark", conf, builder.createTopology());
-
-        Thread.sleep(runningTimeSecond * 1000L);
-        cluster.killTopology("benchmark");
-        cluster.shutdown();
     }
 }
