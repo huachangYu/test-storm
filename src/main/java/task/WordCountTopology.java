@@ -29,10 +29,7 @@ import org.apache.storm.topology.base.BaseRichSpout;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
-import oshi.SystemInfo;
-import oshi.hardware.CentralProcessor;
 import task.common.CommonConfig;
-import task.common.SystemRecorder;
 import task.common.Utils;
 
 public class WordCountTopology {
@@ -204,7 +201,7 @@ public class WordCountTopology {
 
         if (CommonConfig.isLocal) {
             LocalCluster cluster = new LocalCluster();
-            cluster.submitTopology("wineBenchmark", conf, builder.createTopology());
+            cluster.submitTopology("wordCountBenchmark", conf, builder.createTopology());
         } else {
             StormSubmitter.submitTopology(args[0], conf, builder.createTopology());
         }

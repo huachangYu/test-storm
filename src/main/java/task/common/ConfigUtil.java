@@ -8,17 +8,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ConfigUtil {
     public static void updateConfig(Config conf, CommandLine.CommandConfig commandConfig, List<String> ids) {
         if (commandConfig.useThreadPool) {
-            conf.useBoltExecutorPool(true);
-            conf.setBoltExecutorPoolCoreConsumers(commandConfig.threads);
-            conf.setBoltExecutorPoolMaxConsumers(commandConfig.maxThreads);
-            conf.setBoltExecutorPoolStrategy(commandConfig.threadPoolStrategy);
-            conf.enableBoltExecutorPoolOptimize(commandConfig.optimizeThreadPool);
+            conf.useExecutorPool(true);
+            conf.setExecutorPoolCoreConsumers(commandConfig.threads);
+            conf.setExecutorPoolMaxConsumers(commandConfig.maxThreads);
+            conf.setExecutorPoolStrategy(commandConfig.threadPoolStrategy);
+            conf.enableExecutorPoolOptimize(commandConfig.optimizeThreadPool);
             conf.enableWorkersOptimize(commandConfig.optimizeWorkers);
-            conf.setBoltExecutorPoolMaxWorkerNum(commandConfig.maxWorkers);
-            conf.setBoltExecutorPoolMinQueueCapacity(commandConfig.minQueueCapacity);
-            conf.setBoltExecutorPoolTotalQueueCapacity(commandConfig.maxTotalQueueCapacity);
-            conf.enableBoltExecutorPoolPrintMetrics(commandConfig.metrics);
-            conf.setBoltExecutorPoolIds(ids);
+            conf.setExecutorPoolMaxWorkerNum(commandConfig.maxWorkers);
+            conf.setExecutorPoolMinQueueCapacity(commandConfig.minQueueCapacity);
+            conf.setExecutorPoolTotalQueueCapacity(commandConfig.maxTotalQueueCapacity);
+            conf.enableExecutorPoolPrintMetrics(commandConfig.metrics);
+            conf.setExecutorPoolIds(ids);
         }
     }
 
