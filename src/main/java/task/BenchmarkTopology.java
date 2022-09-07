@@ -59,9 +59,8 @@ public class BenchmarkTopology {
             conf.setTopologyBoltThreadPoolIds(Arrays.asList("parser", "fetch", "detect"));
         }
 
-//        StormSubmitter.submitTopology(args[0], conf, builder.createTopology());
-
-        LocalCluster cluster = new LocalCluster();
-        cluster.submitTopology("benchmark", conf, builder.createTopology());
+        StormSubmitter.submitTopology(args[0], conf, builder.createTopology());
+//        LocalCluster cluster = new LocalCluster();
+//        cluster.submitTopology("benchmark", conf, builder.createTopology());
     }
 }

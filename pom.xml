@@ -18,19 +18,7 @@
             <groupId>org.apache.storm</groupId>
             <artifactId>storm-core</artifactId>
             <version>2.4.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.storm</groupId>
-                    <artifactId>storm-client</artifactId>
-                </exclusion>
-            </exclusions>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.storm</groupId>
-            <artifactId>storm-client</artifactId>
-            <version>2.4.0</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

@@ -18,6 +18,7 @@ public class OutputBolt extends BaseBasicBolt {
     private long periodCnt = 0;
     private long totalCnt = 0;
     private long totalCost = 0;
+    private long periodCost = 0;
     private long anomalyCount = 0;
     private long normalCount = 0;
 
@@ -43,17 +44,20 @@ public class OutputBolt extends BaseBasicBolt {
 
         String time = dataformat.format(new Date(Long.parseLong(String.valueOf(current))));
         long cost = System.currentTimeMillis() - eventTime;
+        periodCost += cost;
         totalCost += cost;
         totalCnt++;
         periodCnt++;
         System.out.printf("[%s] [Output-Latency] id:%d, size:%d, cost:%d\n", time, id, predictions.size(), cost);
         if (current - preTime >= 1000) {
-            System.out.printf("[%s] [Output-Throughput] time:%d, avgCost=%.2f, avgCnt:%.2f, periodCnt:%d\n",
+            System.out.printf("[%s] [Output-Throughput] time:%d, avgCost=%.2f, avgCnt:%.2f, periodCnt:%d, periodAvgCost:%.2f\n",
                     time, current,
                     (double) totalCost / (double) totalCnt,
                     (double)(1000 * totalCnt) / (double)(current - boltStartTime),
-                    periodCnt);
+                    periodCnt,
+                    (double) periodCost / (double) periodCnt);
             System.out.printf("anomalyCount:%d, normalCount:%d\n", anomalyCount, normalCount);
+            periodCost = 0;
             periodCnt = 0;
             anomalyCount = 0;
             normalCount = 0;
