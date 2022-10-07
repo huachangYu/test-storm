@@ -22,7 +22,7 @@ public class BenchmarkTopology {
         System.out.println("args=" + Arrays.toString(args));
         Options JDUL = new Options();
         JDUL.addOption("useThreadPool"   ,false, "useThreadPool");
-        JDUL.addOption("coreThreads" ,true,  "coreThreads");
+        JDUL.addOption("threads" ,true,  "threads");
         JDUL.addOption("threadPoolStrategy", true, "threadPoolStrategy");
         JDUL.addOption("qps", true, "qps");
         JDUL.addOption("fetchMaxTasks", true, "fetchMaxTasks");
@@ -31,7 +31,7 @@ public class BenchmarkTopology {
         DefaultParser parser = new DefaultParser();
         CommandLine cli = parser.parse(JDUL, args);
         boolean useThreadPool = cli.hasOption("useThreadPool");
-        int coreThreads = cli.hasOption("coreThreads") ? Integer.parseInt(cli.getOptionValue("coreThreads")) : 4;
+        int threads = cli.hasOption("threads") ? Integer.parseInt(cli.getOptionValue("threads")) : 4;
         String threadPoolStrategy = cli.hasOption("threadPoolStrategy") ? cli.getOptionValue("threadPoolStrategy") : BoltWeightCalc.Strategy.Fair.name();
         int fetchMaxTasks = cli.hasOption("fetchMaxTasks") ? Integer.parseInt(cli.getOptionValue("fetchMaxTasks")) : 1;
         int qps = cli.hasOption("qps") ? Integer.parseInt(cli.getOptionValue("qps")) : 1000;
@@ -53,14 +53,14 @@ public class BenchmarkTopology {
         conf.setDebug(false);
         if (useThreadPool) {
             conf.useBoltThreadPool(true);
-            conf.setBoltThreadPoolCoreThreads(coreThreads);
+            conf.setBoltThreadPoolCoreThreads(threads);
             conf.setTopologyBoltThreadPoolStrategy(threadPoolStrategy);
             conf.setTopologyBoltThreadPoolFetchMaxTasks(fetchMaxTasks);
             conf.setTopologyBoltThreadPoolIds(Arrays.asList("parser", "fetch", "detect"));
         }
 
-        StormSubmitter.submitTopology(args[0], conf, builder.createTopology());
-//        LocalCluster cluster = new LocalCluster();
-//        cluster.submitTopology("benchmark", conf, builder.createTopology());
+//        StormSubmitter.submitTopology(args[0], conf, builder.createTopology());
+        LocalCluster cluster = new LocalCluster();
+        cluster.submitTopology("benchmark", conf, builder.createTopology());
     }
 }
