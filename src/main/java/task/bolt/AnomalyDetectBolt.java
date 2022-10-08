@@ -6,6 +6,7 @@ import org.apache.storm.topology.base.BaseBasicBolt;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
+import org.tribuo.Example;
 import org.tribuo.MutableDataset;
 import org.tribuo.Prediction;
 import org.tribuo.anomaly.Event;
@@ -16,9 +17,10 @@ import org.tribuo.common.libsvm.KernelType;
 import org.tribuo.common.libsvm.LibSVMModel;
 import org.tribuo.common.libsvm.LibSVMTrainer;
 import org.tribuo.common.libsvm.SVMParameters;
-import task.model.DatasetParam;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AnomalyDetectBolt extends BaseBasicBolt {
     private static LibSVMModel<Event> model;
@@ -37,9 +39,10 @@ public class AnomalyDetectBolt extends BaseBasicBolt {
         Long id = (Long) input.getValueByField("id");
         String type = (String) input.getValueByField("type");
         Long eventTime = (Long) input.getValueByField("eventTime");
-        MutableDataset<Event> testData = (MutableDataset<Event>) input.getValueByField("data");
-        List<Prediction<Event>> predictions = model.predict(testData);
-        collector.emit(new Values(id, type, eventTime, predictions));
+        List<Example<Event>> testData = (ArrayList<Example<Event>>) input.getValueByField("data");
+        List<Prediction<Event>> predictions = model.predict(testData::iterator);
+        List<Event.EventType> results = predictions.stream().map(t -> t.getOutput().getType()).collect(Collectors.toList());
+        collector.emit(new Values(id, type, eventTime, results));
     }
 
     @Override

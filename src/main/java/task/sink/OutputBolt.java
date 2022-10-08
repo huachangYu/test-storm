@@ -33,11 +33,11 @@ public class OutputBolt extends BaseBasicBolt {
         }
         Long id = (Long) input.getValueByField("id");
         Long eventTime = (Long) input.getValueByField("eventTime");
-        List<Prediction<Event>> predictions = (List<Prediction<Event>>) input.getValueByField("predictions");
-        for (Prediction<Event> prediction : predictions) {
-            if (prediction.getOutput().getType() == Event.EventType.ANOMALOUS) {
+        List<Event.EventType> predictions = (List<Event.EventType>) input.getValueByField("predictions");
+        for (Event.EventType prediction : predictions) {
+            if (prediction == Event.EventType.ANOMALOUS) {
                 anomalyCount++;
-            } else if (prediction.getOutput().getType() == Event.EventType.EXPECTED) {
+            } else if (prediction == Event.EventType.EXPECTED) {
                 normalCount++;
             }
         }
@@ -51,7 +51,7 @@ public class OutputBolt extends BaseBasicBolt {
         System.out.printf("[%s] [Output-Latency] id:%d, size:%d, cost:%d\n", time, id, predictions.size(), cost);
         if (current - preTime >= 1000) {
             System.out.printf("[%s] [Output-Throughput] time:%d, avgCost=%.2f, avgCnt:%.2f, periodCnt:%d, periodAvgCost:%.2f\n",
-                    time, current,
+                    time, current - boltStartTime,
                     (double) totalCost / (double) totalCnt,
                     (double)(1000 * totalCnt) / (double)(current - boltStartTime),
                     periodCnt,
