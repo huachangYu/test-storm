@@ -69,7 +69,7 @@ public class Source extends BaseRichSpout {
                 } else if (randType == 99) {
                     type = "D"; // 1%
                 }
-                int len = RAND.nextInt(50) + 1;
+                int len = RAND.nextInt(70) + 1;
                 int start = RAND.nextInt(allLines.size() + 1 - len);
                 List<String> data = new ArrayList<>(allLines.subList(start, start + len));
                 collector.emit(new Values(System.currentTimeMillis(), type, data));

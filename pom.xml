@@ -64,7 +64,7 @@
                     </filters>
                     <transformers>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>task.BenchmarkTopology</mainClass>
+                            <mainClass>task.IoTBenchmark</mainClass>
                         </transformer>
                     </transformers>
                 </configuration>

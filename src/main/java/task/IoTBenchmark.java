@@ -2,6 +2,7 @@ package task;
 
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
+import org.apache.storm.StormSubmitter;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
 import org.tribuo.anomaly.Event;
@@ -21,7 +22,7 @@ public class IoTBenchmark {
         TopologyBuilder builder = new TopologyBuilder();
         builder.setSpout("source", new Source(commandConfig.qps), 1);
         builder.setBolt("parser", new ParserBolt(), 2).shuffleGrouping("source");
-        builder.setBolt("predict", new PredictBolt(), 4).fieldsGrouping("parser", new Fields("type"));
+        builder.setBolt("predict", new PredictBolt(), 3).fieldsGrouping("parser", new Fields("type"));
         builder.setBolt("output", new OutputBolt(), 1).shuffleGrouping("predict");
 
         Config conf = new Config();
@@ -34,7 +35,8 @@ public class IoTBenchmark {
             conf.setTopologyBoltThreadPoolIds(Arrays.asList("parser", "predict"));
         }
 
-        LocalCluster cluster = new LocalCluster();
-        cluster.submitTopology("benchmark", conf, builder.createTopology());
+        StormSubmitter.submitTopology(args[0], conf, builder.createTopology());
+//        LocalCluster cluster = new LocalCluster();
+//        cluster.submitTopology("ioTBenchmark", conf, builder.createTopology());
     }
 }

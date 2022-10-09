@@ -10,6 +10,8 @@ import java.util.List;
 
 public class OutputBolt extends BaseBasicBolt {
     private long boltStartTime = -1;
+    private long totalCnt = 0;
+    private long totalCost = 0;
     private long preTime = -1;
     private long periodCount = 0;
     private long periodCost = 0;
@@ -37,13 +39,19 @@ public class OutputBolt extends BaseBasicBolt {
             }
         }
         periodCount++;
+        totalCnt++;
         long cost = current - start;
         periodCost += cost;
-//        System.out.printf("time=%d, cost=%d, anomaly=%d, expect=%d, unknown=%d\n",
+        totalCost += cost;
+//        System.out.printf("[Output-Latency] time=%d, cost=%d, anomaly=%d, expect=%d, unknown=%d\n",
 //                current - boltStartTime, current - start, anomaly, expect, unknown);
         if (current - preTime >= 1000) {
-            System.out.printf("[Output-Throughput] time=%d, count=%d, avgCost=%.2f\n",
-                    current - boltStartTime, periodCount, (double) periodCost / (double) periodCount);
+            System.out.printf("[Output-Throughput] time=%d, avgCost=%.2f, avgCnt=%.2f, periodCnt=%d, periodAvgCost=%.2f\n",
+                    current - boltStartTime,
+                    (double) totalCost / (double) totalCnt,
+                    (double)(1000 * totalCnt) / (double)(current - boltStartTime),
+                    periodCount,
+                    (double) periodCost / (double) periodCount);
             periodCost = 0;
             periodCount = 0;
             preTime = current;
