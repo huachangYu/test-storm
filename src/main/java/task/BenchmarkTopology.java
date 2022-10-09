@@ -8,23 +8,13 @@ import org.apache.storm.LocalCluster;
 import org.apache.storm.executor.bolt.BoltWeightCalc;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
-import org.tribuo.CategoricalInfo;
-import org.tribuo.MutableDataset;
-import org.tribuo.MutableFeatureMap;
-import org.tribuo.Prediction;
-import org.tribuo.RealInfo;
-import org.tribuo.anomaly.Event;
-import org.tribuo.impl.ArrayExample;
-import task.bolt.AnomalyDetectBolt;
-import task.bolt.FetchDataBolt;
-import task.bolt.ParserBolt;
-import task.model.DatasetParam;
-import task.sink.OutputBolt;
-import task.spout.Source;
+import task.detection.AnomalyDetectBolt;
+import task.detection.FetchDataBolt;
+import task.detection.ParserBolt;
+import task.detection.OutputBolt;
+import task.detection.Source;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.function.Predicate;
 
 public class BenchmarkTopology {
     public static void main(String[] args) throws Exception {
