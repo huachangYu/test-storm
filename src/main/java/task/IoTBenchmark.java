@@ -7,6 +7,7 @@ import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
 import org.tribuo.anomaly.Event;
 import task.common.CommandLine;
+import task.common.ConfigUtil;
 import task.iot_anomaly.OutputBolt;
 import task.iot_anomaly.ParserBolt;
 import task.iot_anomaly.PredictBolt;
@@ -27,13 +28,7 @@ public class IoTBenchmark {
 
         Config conf = new Config();
         conf.registerSerialization(Event.EventType.class);
-        if (commandConfig.useThreadPool) {
-            conf.useBoltThreadPool(true);
-            conf.setBoltThreadPoolCoreThreads(commandConfig.threads);
-            conf.setTopologyBoltThreadPoolStrategy(commandConfig.threadPoolStrategy);
-            conf.setTopologyBoltThreadPoolFetchMaxTasks(commandConfig.fetchMaxTasks);
-            conf.setTopologyBoltThreadPoolIds(Arrays.asList("parser", "predict"));
-        }
+        ConfigUtil.updateConfig(conf, commandConfig, Arrays.asList("parser", "predict"));
 
         StormSubmitter.submitTopology(args[0], conf, builder.createTopology());
 //        LocalCluster cluster = new LocalCluster();

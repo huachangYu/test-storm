@@ -6,6 +6,7 @@ import org.apache.storm.StormSubmitter;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
 import task.common.CommandLine;
+import task.common.ConfigUtil;
 import task.detection.AnomalyDetectBolt;
 import task.detection.FetchDataBolt;
 import task.detection.OutputBolt;
@@ -27,13 +28,7 @@ public class BenchmarkTopology {
         builder.setBolt("output", new OutputBolt(), 1).shuffleGrouping("detect");
 
         Config conf = new Config();
-        if (commandConfig.useThreadPool) {
-            conf.useBoltThreadPool(true);
-            conf.setBoltThreadPoolCoreThreads(commandConfig.threads);
-            conf.setTopologyBoltThreadPoolStrategy(commandConfig.threadPoolStrategy);
-            conf.setTopologyBoltThreadPoolFetchMaxTasks(commandConfig.fetchMaxTasks);
-            conf.setTopologyBoltThreadPoolIds(Arrays.asList("parser", "fetch", "detect"));
-        }
+        ConfigUtil.updateConfig(conf, commandConfig, Arrays.asList("parser", "fetch", "detect"));
 
 //        StormSubmitter.submitTopology(args[0], conf, builder.createTopology());
         LocalCluster cluster = new LocalCluster();
