@@ -24,6 +24,7 @@ public class OutputBolt extends BaseBasicBolt {
             preTime = current;
         }
         Long start = input.getLongByField("start");
+        String modelType = input.getStringByField("modelType");
         String type = input.getStringByField("type");
         List<Event.EventType> predictions = (List<Event.EventType>) input.getValueByField("predictions");
         int anomaly = 0;
@@ -43,8 +44,8 @@ public class OutputBolt extends BaseBasicBolt {
         long cost = current - start;
         periodCost += cost;
         totalCost += cost;
-//        System.out.printf("[Output-Latency] time=%d, cost=%d, anomaly=%d, expect=%d, unknown=%d\n",
-//                current - boltStartTime, current - start, anomaly, expect, unknown);
+//        System.out.printf("[Output-Latency] time=%d, cost=%d, model=%s, anomaly=%d, expect=%d, unknown=%d\n",
+//                current - boltStartTime, current - start, modelType, anomaly, expect, unknown);
         if (current - preTime >= 1000) {
             System.out.printf("[Output-Throughput] time=%d, avgCost=%.2f, avgCnt=%.2f, periodCnt=%d, periodAvgCost=%.2f\n",
                     current - boltStartTime,
