@@ -21,7 +21,7 @@ public class PredictBolt extends BaseBasicBolt {
     private static final String[] headers = new String[]{"R1","R2","R3","R4","R5","R6","R7","R8","R9","R10",
             "R11","R12","R13","R14","R15","R16"};
 
-    private final String modelType;
+    private final String modelType; //"svm" or "linear"
     private final Model<Event> model;
 
     public PredictBolt(String modelType) {

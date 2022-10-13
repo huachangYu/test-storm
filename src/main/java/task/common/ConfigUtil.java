@@ -10,10 +10,14 @@ public class ConfigUtil {
         if (commandConfig.useThreadPool) {
             conf.useBoltThreadPool(true);
             conf.setBoltThreadPoolCoreConsumers(commandConfig.threads);
+            conf.setTopologyBoltThreadPoolMaxConsumers(commandConfig.maxThreads);
             conf.setTopologyBoltThreadPoolStrategy(commandConfig.threadPoolStrategy);
             conf.setTopologyBoltThreadPoolFetchMaxTasks(commandConfig.fetchMaxTasks);
             conf.enableBoltThreadPoolOptimize(commandConfig.optimizeThreadPool);
             conf.enableWorkersOptimize(commandConfig.optimizeWorkers);
+            conf.setTopologyBoltThreadPoolMaxWorkerNum(commandConfig.maxWorkers);
+            conf.setTopologyBoltThreadPoolMinQueueCapacity(commandConfig.minQueueCapacity);
+            conf.setTopologyBoltThreadPoolTotalQueueCapacity(commandConfig.maxTotalQueueCapacity);
             conf.setTopologyBoltThreadPoolIds(ids);
         }
     }

@@ -2,6 +2,7 @@ package task;
 
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
+import org.apache.storm.StormSubmitter;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
 import org.tribuo.anomaly.Event;
@@ -21,19 +22,18 @@ public class IoTBenchmark {
 
         TopologyBuilder builder = new TopologyBuilder();
         builder.setSpout("source", new Source(commandConfig.qps), 1);
-        builder.setBolt("parser", new ParserBolt(), 2).shuffleGrouping("source");
-        builder.setBolt("svm", new PredictBolt("svm"), 2).fieldsGrouping("parser", new Fields("type"));
-        builder.setBolt("linear", new PredictBolt("linear"), 2).fieldsGrouping("parser", new Fields("type"));
+        builder.setBolt("parser", new ParserBolt(), 3).shuffleGrouping("source");
+        builder.setBolt("svm", new PredictBolt("svm"), 3).fieldsGrouping("parser", new Fields("type"));
+//        builder.setBolt("linear", new PredictBolt("linear"), 2).fieldsGrouping("parser", new Fields("type"));
         builder.setBolt("output", new OutputBolt(), 1)
-                .shuffleGrouping("svm")
-                .shuffleGrouping("linear");
+                .shuffleGrouping("svm");
 
         Config conf = new Config();
         conf.registerSerialization(Event.EventType.class);
-        ConfigUtil.updateConfig(conf, commandConfig, Arrays.asList("parser", "predict"));
+        ConfigUtil.updateConfig(conf, commandConfig, Arrays.asList("parser", "svm"));
 
-//        StormSubmitter.submitTopology(args[0], conf, builder.createTopology());
-        LocalCluster cluster = new LocalCluster();
-        cluster.submitTopology("ioTBenchmark", conf, builder.createTopology());
+        StormSubmitter.submitTopology(args[0], conf, builder.createTopology());
+//        LocalCluster cluster = new LocalCluster();
+//        cluster.submitTopology("ioTBenchmark", conf, builder.createTopology());
     }
 }
