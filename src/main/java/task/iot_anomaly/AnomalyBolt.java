@@ -17,19 +17,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class PredictBolt extends BaseBasicBolt {
+public class AnomalyBolt extends BaseBasicBolt {
     private static final String[] headers = new String[]{"R1","R2","R3","R4","R5","R6","R7","R8","R9","R10",
             "R11","R12","R13","R14","R15","R16"};
 
     private final String modelType; //"svm" or "linear"
     private final Model<Event> model;
 
-    public PredictBolt(String modelType) {
+    public AnomalyBolt(String modelType) {
         this.modelType = modelType;
         if (modelType.equals("svm")) {
-            model = ModelUtils.getSVMModel();
+            model = AnomalyModelUtils.getSVMModel();
         } else if (modelType.equals("linear")) {
-            model = ModelUtils.getLinearModel();
+            model = AnomalyModelUtils.getLinearModel();
         } else {
             throw new IllegalArgumentException("wrong modelType");
         }

@@ -6,6 +6,7 @@ import org.apache.storm.StormSubmitter;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
 import task.common.CommandLine;
+import task.common.CommonConfig;
 import task.common.ConfigUtil;
 import task.detection.AnomalyDetectBolt;
 import task.detection.FetchDataBolt;
@@ -30,8 +31,11 @@ public class BenchmarkTopology {
         Config conf = new Config();
         ConfigUtil.updateConfig(conf, commandConfig, Arrays.asList("parser", "fetch", "detect"));
 
-//        StormSubmitter.submitTopology(args[0], conf, builder.createTopology());
-        LocalCluster cluster = new LocalCluster();
-        cluster.submitTopology("benchmark", conf, builder.createTopology());
+        if (CommonConfig.isLocal) {
+            LocalCluster cluster = new LocalCluster();
+            cluster.submitTopology("benchmark", conf, builder.createTopology());
+        } else {
+            StormSubmitter.submitTopology(args[0], conf, builder.createTopology());
+        }
     }
 }
