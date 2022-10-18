@@ -3,7 +3,7 @@ package task.common;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.storm.executor.bolt.BoltWeightCalc;
+import org.apache.storm.executor.ScheduledStrategy;
 
 public class CommandLine {
     public static class CommandConfig {
@@ -54,12 +54,12 @@ public class CommandLine {
         org.apache.commons.cli.CommandLine cli = parser.parse(JDUL, args);
         boolean useThreadPool = cli.hasOption("useThreadPool");
         int threads = cli.hasOption("threads") ? Integer.parseInt(cli.getOptionValue("threads")) : 4;
-        String threadPoolStrategy = cli.hasOption("threadPoolStrategy") ? cli.getOptionValue("threadPoolStrategy") : BoltWeightCalc.Strategy.Fair.name();
+        String threadPoolStrategy = cli.hasOption("threadPoolStrategy") ? cli.getOptionValue("threadPoolStrategy") : ScheduledStrategy.Strategy.Fair.name();
         int fetchMaxTasks = cli.hasOption("fetchMaxTasks") ? Integer.parseInt(cli.getOptionValue("fetchMaxTasks")) : 1;
         int qps = cli.hasOption("qps") ? Integer.parseInt(cli.getOptionValue("qps")) : 1000;
         int maxThreads = cli.hasOption("maxThreads") ? Integer.parseInt(cli.getOptionValue("maxThreads")) : 4;
         int maxWorkers = cli.hasOption("maxWorkers") ? Integer.parseInt(cli.getOptionValue("maxWorkers")) : 1;
-        int minQueueCapacity = cli.hasOption("minQueueCapacity") ? Integer.parseInt(cli.getOptionValue("minQueueCapacity")) : 10000;
+        int minQueueCapacity = cli.hasOption("minQueueCapacity") ? Integer.parseInt(cli.getOptionValue("minQueueCapacity")) : 5000;
         int maxTotalQueueCapacity = cli.hasOption("maxTotalQueueCapacity") ? Integer.parseInt(cli.getOptionValue("maxTotalQueueCapacity")) : 2000000;
         boolean optimizeThreadPool = cli.hasOption("optimizeThreadPool");
         boolean optimizeWorkers = cli.hasOption("optimizeWorkers");

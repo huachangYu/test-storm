@@ -1,4 +1,4 @@
-package task.smoke;
+package task.wine;
 
 import org.apache.storm.spout.SpoutOutputCollector;
 import org.apache.storm.task.TopologyContext;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-public class SmokeSource extends BaseRichSpout {
+public class WineSource extends BaseRichSpout {
     private static Random RAND = new Random();
     private static List<String> allLines = getAllLines();
 
@@ -26,14 +26,14 @@ public class SmokeSource extends BaseRichSpout {
     private final int qps;
     private int totalCount = 0;
 
-    public SmokeSource(int qps) {
+    public WineSource(int qps) {
         this.qps = qps;
     }
 
     private static List<String> getAllLines() {
         List<String> allLines = null;
         try {
-            allLines = Files.readAllLines(Paths.get(CommonConfig.smokeCsvPath), StandardCharsets.UTF_8);
+            allLines = Files.readAllLines(Paths.get(CommonConfig.wineCsvPath), StandardCharsets.UTF_8);
             if (allLines.size() <= 1) {
                 return new ArrayList<>();
             }
@@ -70,7 +70,7 @@ public class SmokeSource extends BaseRichSpout {
                 } else if (randType == 99) {
                     type = "D"; // 1%
                 }
-                int len = RAND.nextInt(25) + 1;
+                final int len = 50;
                 int start = RAND.nextInt(allLines.size() + 1 - len);
                 List<String> data = new ArrayList<>(allLines.subList(start, start + len));
                 collector.emit(new Values(System.currentTimeMillis(), type, data));

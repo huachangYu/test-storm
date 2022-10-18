@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-public class Source extends BaseRichSpout {
+public class IoTSource extends BaseRichSpout {
     private static Random RAND = new Random();
     private static List<String> allLines = getAllLines();
 
@@ -26,7 +26,7 @@ public class Source extends BaseRichSpout {
     private final int qps;
     private int totalCount = 0;
 
-    public Source(int qps) {
+    public IoTSource(int qps) {
         this.qps = qps;
     }
 
@@ -70,7 +70,7 @@ public class Source extends BaseRichSpout {
                 } else if (randType == 99) {
                     type = "D"; // 1%
                 }
-                int len = RAND.nextInt(50) + 1;
+                int len = RAND.nextInt(100) + 1;
                 int start = RAND.nextInt(allLines.size() + 1 - len);
                 List<String> data = new ArrayList<>(allLines.subList(start, start + len));
                 collector.emit(new Values(System.currentTimeMillis(), type, data));

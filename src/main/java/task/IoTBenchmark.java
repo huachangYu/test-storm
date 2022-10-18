@@ -11,7 +11,7 @@ import task.common.ConfigUtil;
 import task.iot_anomaly.AnomalyBolt;
 import task.iot_anomaly.OutputBolt;
 import task.iot_anomaly.ParserBolt;
-import task.iot_anomaly.Source;
+import task.iot_anomaly.IoTSource;
 
 import java.util.Arrays;
 
@@ -21,7 +21,7 @@ public class IoTBenchmark {
         CommandLine.CommandConfig commandConfig = CommandLine.getCLIConfig(args);
 
         TopologyBuilder builder = new TopologyBuilder();
-        builder.setSpout("source", new Source(commandConfig.qps), 1);
+        builder.setSpout("source", new IoTSource(commandConfig.qps), 1);
         builder.setBolt("parser", new ParserBolt(), 2).shuffleGrouping("source");
         builder.setBolt("svm", new AnomalyBolt("svm"), 2).shuffleGrouping("parser");
         builder.setBolt("output", new OutputBolt(), 1).shuffleGrouping("svm");

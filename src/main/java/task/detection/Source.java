@@ -47,7 +47,7 @@ public class Source extends BaseRichSpout {
         }
         if (current - preTime >= 1000) {
             String time = dataformat.format(new Date(Long.parseLong(String.valueOf(current))));
-            System.out.printf("[%s] [Source] time: %d, total:%d, avg:%.2f. periodCnt:%d\n",
+            System.out.printf("[%s] [IoTSource] time: %d, total:%d, avg:%.2f. periodCnt:%d\n",
                     time, current, total, (double)(1000 * total) / (double)(current - startTime), count);
             total += count;
             count = 0;

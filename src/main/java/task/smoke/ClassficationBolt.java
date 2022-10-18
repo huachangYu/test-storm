@@ -1,4 +1,4 @@
-package task.iot_anomaly;
+package task.smoke;
 
 import org.apache.storm.topology.BasicOutputCollector;
 import org.apache.storm.topology.OutputFieldsDeclarer;
@@ -6,12 +6,9 @@ import org.apache.storm.topology.base.BaseBasicBolt;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
-import org.bouncycastle.util.Arrays;
 import org.tribuo.Example;
 import org.tribuo.Model;
 import org.tribuo.Prediction;
-import org.tribuo.anomaly.AnomalyFactory;
-import org.tribuo.anomaly.Event;
 import org.tribuo.classification.Label;
 import org.tribuo.classification.LabelFactory;
 import org.tribuo.impl.ArrayExample;
@@ -21,11 +18,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class PredictionBolt extends BaseBasicBolt {
+public class ClassficationBolt extends BaseBasicBolt {
     private final String modelType; //"svm" or "linear"
     private final Model<Label> model;
 
-    public PredictionBolt(String modelType) {
+    public ClassficationBolt(String modelType) {
         this.modelType = modelType;
         switch (modelType) {
             case "svm":
