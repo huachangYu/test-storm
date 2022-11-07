@@ -1,5 +1,6 @@
 package task.iot_anomaly;
 
+import clojure.lang.Atom;
 import org.apache.storm.spout.SpoutOutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
@@ -16,6 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class IoTSource extends BaseRichSpout {
     private static Random RAND = new Random();
@@ -54,13 +60,15 @@ public class IoTSource extends BaseRichSpout {
         if (sourceStartTime <= 0) {
             sourceStartTime = current;
         }
-        int remains = qps;
-        int cur = 0;
-        int interval = remains / 10;
-        for (int i = 0; i < 10; i++) {
-            int end = i == 9 ? remains : cur + interval;
-            while (cur < end) {
-                cur++;
+        final AtomicInteger cur = new AtomicInteger();
+        final int runTimes = 100;
+        final int interval = qps / runTimes;
+        final CountDownLatch countDownLatch =new CountDownLatch(runTimes);
+        final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        executor.scheduleAtFixedRate(() -> {
+            int end = countDownLatch.getCount() == 1 ? qps : cur.get() + interval;
+            while (cur.get() < end) {
+                cur.getAndIncrement();
                 int randType = RAND.nextInt(100);
                 String type = "A"; // 60%
                 if (60 <= randType && randType < 90) {
@@ -75,13 +83,15 @@ public class IoTSource extends BaseRichSpout {
                 List<String> data = new ArrayList<>(allLines.subList(start, start + len));
                 collector.emit(new Values(System.currentTimeMillis(), type, data));
             }
-            try {
-                Thread.sleep(100 - (i / 9)); // the main logic may cost 1ms
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            countDownLatch.countDown();
+        }, 0, 1000 / runTimes, TimeUnit.MILLISECONDS);
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
-        totalCount += cur;
+        executor.shutdown();
+        totalCount += qps;
     }
 
     @Override
