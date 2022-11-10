@@ -26,14 +26,26 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class IoTSource extends BaseRichSpout {
     private static Random RAND = new Random();
     private static List<String> allLines = getAllLines();
-
     private SpoutOutputCollector collector;
     private long sourceStartTime = -1;
-    private final int qps;
+    private volatile AtomicInteger qps;
+    private int minQps;
+    private int maxQps;
+    private int qpsIncrease;
+    private long qpsTimeDelta;
+    private Thread updateQpsThread;
     private int totalCount = 0;
 
+    public IoTSource(int minQps, int maxQps, int increase, long timeDelta) {
+        this.qps = new AtomicInteger(minQps);
+        this.minQps = minQps;
+        this.maxQps = maxQps;
+        this.qpsIncrease = increase;
+        this.qpsTimeDelta = timeDelta;
+    }
+
     public IoTSource(int qps) {
-        this.qps = qps;
+        this.qps = new AtomicInteger(qps);
     }
 
     private static List<String> getAllLines() {
@@ -52,6 +64,19 @@ public class IoTSource extends BaseRichSpout {
     @Override
     public void open(Map<String, Object> conf, TopologyContext context, SpoutOutputCollector collector) {
         this.collector = collector;
+        this.updateQpsThread = new Thread(() -> {
+            while (qps.get() < maxQps) {
+                try {
+                    Thread.sleep(qpsTimeDelta);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                qps.getAndAdd(qpsIncrease);
+                System.out.println("update qps to " + qps);
+            }
+        });
+        this.updateQpsThread.setDaemon(true);
+        this.updateQpsThread.start();
     }
 
     @Override
@@ -62,11 +87,12 @@ public class IoTSource extends BaseRichSpout {
         }
         final AtomicInteger cur = new AtomicInteger();
         final int runTimes = 100;
-        final int interval = qps / runTimes;
+        final int totalSize = qps.get();
+        final int interval = totalSize / runTimes;
         final CountDownLatch countDownLatch =new CountDownLatch(runTimes);
         final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         executor.scheduleAtFixedRate(() -> {
-            int end = countDownLatch.getCount() == 1 ? qps : cur.get() + interval;
+            int end = countDownLatch.getCount() == 1 ? totalSize : cur.get() + interval;
             while (cur.get() < end) {
                 cur.getAndIncrement();
                 int randType = RAND.nextInt(100);
@@ -91,7 +117,7 @@ public class IoTSource extends BaseRichSpout {
             throw new RuntimeException(e);
         }
         executor.shutdown();
-        totalCount += qps;
+        totalCount += totalSize;
     }
 
     @Override

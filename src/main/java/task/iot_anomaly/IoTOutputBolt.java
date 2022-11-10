@@ -8,7 +8,7 @@ import org.tribuo.anomaly.Event;
 
 import java.util.List;
 
-public class OutputBolt extends BaseBasicBolt {
+public class IoTOutputBolt extends BaseBasicBolt {
     private long boltStartTime = -1;
     private long totalCnt = 0;
     private long totalCost = 0;

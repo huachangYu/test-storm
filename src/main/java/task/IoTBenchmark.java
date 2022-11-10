@@ -4,12 +4,13 @@ import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.StormSubmitter;
 import org.apache.storm.topology.TopologyBuilder;
+import org.apache.storm.tuple.Fields;
 import org.tribuo.anomaly.Event;
 import task.common.CommandLine;
 import task.common.CommonConfig;
 import task.common.ConfigUtil;
 import task.iot_anomaly.AnomalyBolt;
-import task.iot_anomaly.OutputBolt;
+import task.iot_anomaly.IoTOutputBolt;
 import task.iot_anomaly.ParserBolt;
 import task.iot_anomaly.IoTSource;
 
@@ -22,9 +23,9 @@ public class IoTBenchmark {
 
         TopologyBuilder builder = new TopologyBuilder();
         builder.setSpout("source", new IoTSource(commandConfig.qps), 1);
-        builder.setBolt("parser", new ParserBolt(), 2).shuffleGrouping("source");
-        builder.setBolt("svm", new AnomalyBolt("svm"), 2).shuffleGrouping("parser");
-        builder.setBolt("output", new OutputBolt(), 1).shuffleGrouping("svm");
+        builder.setBolt("parser", new ParserBolt(), 4).shuffleGrouping("source");
+        builder.setBolt("svm", new AnomalyBolt("svm"), 4).fieldsGrouping("parser", new Fields("type"));
+        builder.setBolt("output", new IoTOutputBolt(), 1).shuffleGrouping("svm");
 
         Config conf = new Config();
         conf.registerSerialization(Event.EventType.class);
