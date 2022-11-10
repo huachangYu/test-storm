@@ -16,12 +16,12 @@ import java.util.Arrays;
 
 public class SmokeBenchmark {
     public static void main(String[] args) throws Exception {
-        System.out.println("args=" + Arrays.toString(args));
+        System.out.println("task=SmokeBenchmark, args=" + Arrays.toString(args));
         CommandLine.CommandConfig commandConfig = CommandLine.getCLIConfig(args);
 
         TopologyBuilder builder = new TopologyBuilder();
         builder.setSpout("source", new SmokeSource(commandConfig.qps), 1);
-        builder.setBolt("parser", new ParserBolt(), 1).shuffleGrouping("source");
+        builder.setBolt("parser", new ParserBolt(), 2).shuffleGrouping("source");
         builder.setBolt("svm", new ClassficationBolt("svm"), 1).shuffleGrouping("parser");
         builder.setBolt("logistic", new ClassficationBolt("logistic"), 1).shuffleGrouping("parser");
         builder.setBolt("cart", new ClassficationBolt("cart"), 1).shuffleGrouping("parser");
@@ -30,7 +30,7 @@ public class SmokeBenchmark {
                 .shuffleGrouping("logistic")
                 .shuffleGrouping("cart");
         Config conf = new Config();
-        ConfigUtil.updateConfig(conf, commandConfig, Arrays.asList("parser", "svm", "logistic", "cart", "output"));
+        ConfigUtil.updateConfig(conf, commandConfig, Arrays.asList("parser", "svm", "logistic", "cart"));
 
         if (CommonConfig.isLocal) {
             LocalCluster cluster = new LocalCluster();

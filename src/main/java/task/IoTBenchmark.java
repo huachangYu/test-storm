@@ -18,18 +18,18 @@ import java.util.Arrays;
 
 public class IoTBenchmark {
     public static void main(String[] args) throws Exception {
-        System.out.println("args=" + Arrays.toString(args));
+        System.out.println("task=IoTBenchmark, args=" + Arrays.toString(args));
         CommandLine.CommandConfig commandConfig = CommandLine.getCLIConfig(args);
 
         TopologyBuilder builder = new TopologyBuilder();
         builder.setSpout("source", new IoTSource(commandConfig.qps), 1);
-        builder.setBolt("parser", new ParserBolt(), 4).shuffleGrouping("source");
-        builder.setBolt("svm", new AnomalyBolt("svm"), 4).fieldsGrouping("parser", new Fields("type"));
+        builder.setBolt("parser", new ParserBolt(), 2).shuffleGrouping("source");
+        builder.setBolt("svm", new AnomalyBolt("svm"), 2).fieldsGrouping("parser", new Fields("type"));
         builder.setBolt("output", new IoTOutputBolt(), 1).shuffleGrouping("svm");
 
         Config conf = new Config();
         conf.registerSerialization(Event.EventType.class);
-        ConfigUtil.updateConfig(conf, commandConfig, Arrays.asList("parser", "svm", "output"));
+        ConfigUtil.updateConfig(conf, commandConfig, Arrays.asList("parser", "svm"));
 
         if (CommonConfig.isLocal) {
             LocalCluster cluster = new LocalCluster();

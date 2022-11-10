@@ -17,7 +17,7 @@ import java.util.Arrays;
 
 public class WineBenchmark {
     public static void main(String[] args) throws Exception {
-        System.out.println("args=" + Arrays.toString(args));
+        System.out.println("task=WineBenchmark, args=" + Arrays.toString(args));
         CommandLine.CommandConfig commandConfig = CommandLine.getCLIConfig(args);
 
         TopologyBuilder builder = new TopologyBuilder();
@@ -30,7 +30,7 @@ public class WineBenchmark {
                 .shuffleGrouping("randomForest")
                 .shuffleGrouping("elasticNet");
         Config conf = new Config();
-        ConfigUtil.updateConfig(conf, commandConfig, Arrays.asList("parser", "randomForest", "avg", "elasticNet", "output"));
+        ConfigUtil.updateConfig(conf, commandConfig, Arrays.asList("parser", "randomForest", "avg", "elasticNet"));
 
         if (CommonConfig.isLocal) {
             LocalCluster cluster = new LocalCluster();
