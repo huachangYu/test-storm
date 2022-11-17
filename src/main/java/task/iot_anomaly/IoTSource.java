@@ -29,7 +29,6 @@ public class IoTSource extends BaseRichSpout {
     private SpoutOutputCollector collector;
     private long sourceStartTime = -1;
     private volatile AtomicInteger qps;
-    private int minQps;
     private int maxQps;
     private int qpsIncrease;
     private long qpsTimeDelta;
@@ -38,7 +37,6 @@ public class IoTSource extends BaseRichSpout {
 
     public IoTSource(int minQps, int maxQps, int increase, long timeDelta) {
         this.qps = new AtomicInteger(minQps);
-        this.minQps = minQps;
         this.maxQps = maxQps;
         this.qpsIncrease = increase;
         this.qpsTimeDelta = timeDelta;
