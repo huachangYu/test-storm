@@ -4,6 +4,7 @@ import org.apache.storm.topology.BasicOutputCollector;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseBasicBolt;
 import org.apache.storm.tuple.Tuple;
+import task.common.Utils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -64,8 +65,11 @@ public class OutputBolt extends BaseBasicBolt {
                         .max(Double::compareTo).get();
                 long avgPeriodCount = periodCount.values().stream().min(Long::compareTo).get();
 
-                System.out.printf("[Output-Throughput] time=%d, avgCost=%.2f, avgCnt=%.2f, periodCnt=%d, periodAvgCost=%.2f\n",
-                        current - boltStartTime, avgCost, avgCnt, avgPeriodCount, avgPeriodCost);
+                System.out.printf("[Output-Throughput] time=%d, avgCost=%.2f, avgCnt=%.2f, " +
+                                "periodCnt=%d, periodAvgCost=%.2f, cpu=%.2f\n",
+                        current - boltStartTime, avgCost, avgCnt,
+                        avgPeriodCount, avgPeriodCost,
+                        Utils.systemRecorder.getAndRecordCpuLoad() * 100);
                 periodCost.clear();
                 periodCount.clear();
                 preTime = current;

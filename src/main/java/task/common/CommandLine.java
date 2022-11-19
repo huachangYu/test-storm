@@ -19,10 +19,16 @@ public class CommandLine {
         public final int maxTotalQueueCapacity;
         public final boolean metrics;
 
+        public final boolean startQpsUpdater;
+        public final int minQps;
+        public final int maxQps;
+        public final int increaseQps;
+        public final long timeDeltaQps;
+
         public CommandConfig(boolean useThreadPool, int threads, String threadPoolStrategy,
                              int qps, boolean optimizeThreadPool, boolean optimizeWorkers,
                              int maxThreads, int maxWorkers, int minQueueCapacity,
-                             int maxTotalQueueCapacity, boolean metrics) {
+                             int maxTotalQueueCapacity, boolean metrics, boolean startQpsUpdater, int minQps, int maxQps, int increaseQps, long timeDeltaQps) {
             this.useThreadPool = useThreadPool;
             this.threads = threads;
             this.threadPoolStrategy = threadPoolStrategy;
@@ -34,24 +40,34 @@ public class CommandLine {
             this.minQueueCapacity = minQueueCapacity;
             this.maxTotalQueueCapacity = maxTotalQueueCapacity;
             this.metrics = metrics;
+            this.startQpsUpdater = startQpsUpdater;
+            this.minQps = minQps;
+            this.maxQps = maxQps;
+            this.increaseQps = increaseQps;
+            this.timeDeltaQps = timeDeltaQps;
         }
     }
     public static CommandConfig getCLIConfig(String[] args) throws ParseException {
-        Options JDUL = new Options();
-        JDUL.addOption("useThreadPool"   ,false, "useThreadPool");
-        JDUL.addOption("threads" ,true,  "threads");
-        JDUL.addOption("maxThreads" ,true,  "maxThreads");
-        JDUL.addOption("maxWorkers" ,true,  "maxWorkers");
-        JDUL.addOption("minQueueCapacity", true, "minQueueCapacity");
-        JDUL.addOption("maxTotalQueueCapacity", true, "maxTotalQueueCapacity");
-        JDUL.addOption("threadPoolStrategy", true, "threadPoolStrategy");
-        JDUL.addOption("qps", true, "qps");
-        JDUL.addOption("optimizeThreadPool", false, "optimizeThreadPool");
-        JDUL.addOption("optimizeWorkers", false, "optimizeWorkers");
-        JDUL.addOption("metrics", false, "metrics");
+        Options CommandLineOption = new Options();
+        CommandLineOption.addOption("useThreadPool"   ,false, "useThreadPool");
+        CommandLineOption.addOption("threads" ,true,  "threads");
+        CommandLineOption.addOption("maxThreads" ,true,  "maxThreads");
+        CommandLineOption.addOption("maxWorkers" ,true,  "maxWorkers");
+        CommandLineOption.addOption("minQueueCapacity", true, "minQueueCapacity");
+        CommandLineOption.addOption("maxTotalQueueCapacity", true, "maxTotalQueueCapacity");
+        CommandLineOption.addOption("threadPoolStrategy", true, "threadPoolStrategy");
+        CommandLineOption.addOption("qps", true, "qps");
+        CommandLineOption.addOption("optimizeThreadPool", false, "optimizeThreadPool");
+        CommandLineOption.addOption("optimizeWorkers", false, "optimizeWorkers");
+        CommandLineOption.addOption("metrics", false, "metrics");
+        CommandLineOption.addOption("minQps", true, "minQps");
+        CommandLineOption.addOption("maxQps", true, "maxQps");
+        CommandLineOption.addOption("increaseQps", true, "increaseQps");
+        CommandLineOption.addOption("timeDeltaQps", true, "timeDeltaQps");
 
         DefaultParser parser = new DefaultParser();
-        org.apache.commons.cli.CommandLine cli = parser.parse(JDUL, args);
+        org.apache.commons.cli.CommandLine cli = parser.parse(CommandLineOption, args);
+
         boolean useThreadPool = cli.hasOption("useThreadPool");
         int threads = cli.hasOption("threads") ? Integer.parseInt(cli.getOptionValue("threads")) : 4;
         String threadPoolStrategy = cli.hasOption("threadPoolStrategy") ? cli.getOptionValue("threadPoolStrategy") : ScheduledStrategy.Strategy.Fair.name();
@@ -63,8 +79,15 @@ public class CommandLine {
         boolean optimizeThreadPool = cli.hasOption("optimizeThreadPool");
         boolean optimizeWorkers = cli.hasOption("optimizeWorkers");
         boolean metrics = cli.hasOption("metrics");
+        boolean startQpsUpdater = cli.hasOption("minQps");
+        int minQps = cli.hasOption("minQps") ? Integer.parseInt(cli.getOptionValue("minQps")) : 0;
+        int maxQps = cli.hasOption("maxQps") ? Integer.parseInt(cli.getOptionValue("maxQps")) : 0;
+        int increaseQps = cli.hasOption("increaseQps") ? Integer.parseInt(cli.getOptionValue("increaseQps")) : 0;
+        long timeDeltaQps = cli.hasOption("timeDeltaQps") ? Long.parseLong(cli.getOptionValue("timeDeltaQps")) : 0;
+
         return new CommandConfig(useThreadPool, threads, threadPoolStrategy,
                 qps, optimizeThreadPool, optimizeWorkers, maxThreads, maxWorkers,
-                minQueueCapacity, maxTotalQueueCapacity, metrics);
+                minQueueCapacity, maxTotalQueueCapacity, metrics, startQpsUpdater,
+                minQps, maxQps, increaseQps, timeDeltaQps);
     }
 }

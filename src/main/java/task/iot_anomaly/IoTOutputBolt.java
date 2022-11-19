@@ -5,6 +5,7 @@ import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseBasicBolt;
 import org.apache.storm.tuple.Tuple;
 import org.tribuo.anomaly.Event;
+import task.common.Utils;
 
 import java.util.List;
 
@@ -47,12 +48,14 @@ public class IoTOutputBolt extends BaseBasicBolt {
 //        System.out.printf("[Output-Latency] time=%d, cost=%d, model=%s, anomaly=%d, expect=%d, unknown=%d\n",
 //                current - boltStartTime, current - start, modelType, anomaly, expect, unknown);
         if (current - preTime >= 1000) {
-            System.out.printf("[Output-Throughput] time=%d, avgCost=%.2f, avgCnt=%.2f, periodCnt=%d, periodAvgCost=%.2f\n",
+            System.out.printf("[Output-Throughput] time=%d, avgCost=%.2f, avgCnt=%.2f, " +
+                            "periodCnt=%d, periodAvgCost=%.2f, cpu=%.2f\n",
                     current - boltStartTime,
                     (double) totalCost / (double) totalCnt,
                     (double)(1000 * totalCnt) / (double)(current - boltStartTime),
                     periodCount,
-                    (double) periodCost / (double) periodCount);
+                    (double) periodCost / (double) periodCount,
+                    Utils.systemRecorder.getAndRecordCpuLoad() * 100);
             periodCost = 0;
             periodCount = 0;
             preTime = current;

@@ -7,6 +7,7 @@ import org.apache.storm.topology.base.BaseRichSpout;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Values;
 import task.common.CommonConfig;
+import task.common.ConfigUtil;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -28,11 +29,23 @@ public class WineSource extends BaseRichSpout {
 
     private SpoutOutputCollector collector;
     private long sourceStartTime = -1;
-    private final int qps;
+    private final AtomicInteger qps;
+    private boolean startQpsUpdater = false;
+    private int maxQps;
+    private int qpsIncrease;
+    private long qpsTimeDelta;
     private int totalCount = 0;
 
+    public WineSource(int minQps, int maxQps, int qpsIncrease, long qpsTimeDelta) {
+        this(minQps);
+        this.startQpsUpdater = true;
+        this.maxQps = maxQps;
+        this.qpsIncrease = qpsIncrease;
+        this.qpsTimeDelta = qpsTimeDelta;
+    }
+
     public WineSource(int qps) {
-        this.qps = qps;
+        this.qps = new AtomicInteger(qps);
     }
 
     private static List<String> getAllLines() {
@@ -51,6 +64,9 @@ public class WineSource extends BaseRichSpout {
     @Override
     public void open(Map<String, Object> conf, TopologyContext context, SpoutOutputCollector collector) {
         this.collector = collector;
+        if (this.startQpsUpdater) {
+            ConfigUtil.startIncreasingQpsThread(qps, maxQps, qpsIncrease, qpsTimeDelta);
+        }
     }
 
     @Override
@@ -61,11 +77,12 @@ public class WineSource extends BaseRichSpout {
         }
         final AtomicInteger cur = new AtomicInteger();
         final int runTimes = 100;
-        final int interval = qps / runTimes;
+        final int totalSize = qps.get();
+        final int interval = totalSize / runTimes;
         final CountDownLatch countDownLatch =new CountDownLatch(runTimes);
         final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         executor.scheduleAtFixedRate(() -> {
-            int end = countDownLatch.getCount() == 1 ? qps : cur.get() + interval;
+            int end = countDownLatch.getCount() == 1 ? totalSize : cur.get() + interval;
             while (cur.get() < end) {
                 cur.getAndIncrement();
                 int randType = RAND.nextInt(100);
@@ -90,7 +107,7 @@ public class WineSource extends BaseRichSpout {
             throw new RuntimeException(e);
         }
         executor.shutdown();
-        totalCount += qps;
+        totalCount += totalSize;
     }
 
     @Override

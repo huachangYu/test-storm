@@ -32,6 +32,8 @@ import org.apache.storm.tuple.Values;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import task.common.CommonConfig;
+import task.common.SystemRecorder;
+import task.common.Utils;
 
 public class WordCountTopology {
     public static class RandomSentenceSpout extends BaseRichSpout {
@@ -142,15 +144,10 @@ public class WordCountTopology {
         private long preTime = -1;
         private long periodCount = 0;
         private long periodCost = 0;
-        private CentralProcessor systemInfoProcessor;
-        private long[] oldTicks;
 
         @Override
         public void prepare(Map<String, Object> topoConf, TopologyContext context) {
             super.prepare(topoConf, context);
-            SystemInfo systemInfo = new SystemInfo();
-            this.systemInfoProcessor = systemInfo.getHardware().getProcessor();
-            this.oldTicks = this.systemInfoProcessor.getSystemCpuLoadTicks();
         }
 
         @Override
@@ -165,22 +162,14 @@ public class WordCountTopology {
             periodCount++;
             periodCost += cost;
             if (current - preTime >= 1000) {
-                long[] ticks = this.systemInfoProcessor.getSystemCpuLoadTicks();
-                long total = 0;
-                for (int i = 0; i < ticks.length; i++) {
-                    total += ticks[i] - oldTicks[i];
-                }
-                long idle = ticks[CentralProcessor.TickType.IDLE.getIndex()] - oldTicks[CentralProcessor.TickType.IDLE.getIndex()];
-                double cpuUsage = total <= 0 ? 0 : 1 - (double) idle / (double) total;
                 System.out.printf("[Output-Throughput] time=%d, periodCnt=%d, periodAvgCost=%.2f, cpu=%.2f\n",
                         current - boltStartTime,
                         periodCount,
                         (double) periodCost / (double) periodCount,
-                        cpuUsage * 100);
+                        Utils.systemRecorder.getAndRecordCpuLoad() * 100);
                 periodCost = 0;
                 periodCount = 0;
                 preTime = current;
-                oldTicks = ticks;
             }
         }
 

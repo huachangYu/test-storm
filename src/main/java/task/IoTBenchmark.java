@@ -22,7 +22,11 @@ public class IoTBenchmark {
         CommandLine.CommandConfig commandConfig = CommandLine.getCLIConfig(args);
 
         TopologyBuilder builder = new TopologyBuilder();
-        builder.setSpout("source", new IoTSource(commandConfig.qps), 1);
+        IoTSource source = commandConfig.startQpsUpdater ?
+                new IoTSource(commandConfig.minQps, commandConfig.maxQps,
+                        commandConfig.increaseQps, commandConfig.timeDeltaQps) :
+                new IoTSource(commandConfig.qps);
+        builder.setSpout("source", source, 1);
         builder.setBolt("parser", new ParserBolt(), 2).shuffleGrouping("source");
         builder.setBolt("svm", new AnomalyBolt("svm"), 2).fieldsGrouping("parser", new Fields("type"));
         builder.setBolt("output", new IoTOutputBolt(), 1).shuffleGrouping("svm");

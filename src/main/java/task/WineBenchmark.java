@@ -21,7 +21,11 @@ public class WineBenchmark {
         CommandLine.CommandConfig commandConfig = CommandLine.getCLIConfig(args);
 
         TopologyBuilder builder = new TopologyBuilder();
-        builder.setSpout("source", new WineSource(commandConfig.qps), 1);
+        WineSource source = commandConfig.startQpsUpdater ?
+                new WineSource(commandConfig.minQps, commandConfig.maxQps,
+                        commandConfig.increaseQps, commandConfig.timeDeltaQps) :
+                new WineSource(commandConfig.qps);
+        builder.setSpout("source", source, 1);
         builder.setBolt("parser", new ParserBolt(), 2).shuffleGrouping("source");
         builder.setBolt("randomForest", new RegressionBolt("randomForest"), 1).shuffleGrouping("parser");
         builder.setBolt("avg", new AverageBolt(), 1).shuffleGrouping("parser");

@@ -21,7 +21,11 @@ public class SmokeBenchmark {
         CommandLine.CommandConfig commandConfig = CommandLine.getCLIConfig(args);
 
         TopologyBuilder builder = new TopologyBuilder();
-        builder.setSpout("source", new SmokeSource(100, 3000, 50, 10 * 60 * 1000), 1);
+        SmokeSource source = commandConfig.startQpsUpdater ?
+                new SmokeSource(commandConfig.minQps, commandConfig.maxQps,
+                        commandConfig.increaseQps, commandConfig.timeDeltaQps) :
+                new SmokeSource(commandConfig.qps);
+        builder.setSpout("source", source, 1);
         builder.setBolt("parser", new ParserBolt(), 2).shuffleGrouping("source");
         builder.setBolt("svm", new ClassficationBolt("svm"), 1).shuffleGrouping("parser");
         builder.setBolt("logistic", new ClassficationBolt("logistic"), 1).shuffleGrouping("parser");
@@ -30,6 +34,7 @@ public class SmokeBenchmark {
                 .shuffleGrouping("svm")
                 .shuffleGrouping("logistic")
                 .shuffleGrouping("cart");
+
         Config conf = new Config();
         ConfigUtil.updateConfig(conf, commandConfig, Arrays.asList("parser", "svm", "logistic", "cart"));
 

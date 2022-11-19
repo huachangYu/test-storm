@@ -8,6 +8,7 @@ import org.apache.storm.topology.base.BaseRichSpout;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Values;
 import task.common.CommonConfig;
+import task.common.ConfigUtil;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -32,11 +33,12 @@ public class IoTSource extends BaseRichSpout {
     private int maxQps;
     private int qpsIncrease;
     private long qpsTimeDelta;
-    private Thread updateQpsThread;
+    private boolean startQpsUpdater = false;
     private int totalCount = 0;
 
     public IoTSource(int minQps, int maxQps, int increase, long timeDelta) {
         this.qps = new AtomicInteger(minQps);
+        this.startQpsUpdater = true;
         this.maxQps = maxQps;
         this.qpsIncrease = increase;
         this.qpsTimeDelta = timeDelta;
@@ -62,19 +64,9 @@ public class IoTSource extends BaseRichSpout {
     @Override
     public void open(Map<String, Object> conf, TopologyContext context, SpoutOutputCollector collector) {
         this.collector = collector;
-        this.updateQpsThread = new Thread(() -> {
-            while (qps.get() < maxQps) {
-                try {
-                    Thread.sleep(qpsTimeDelta);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                qps.getAndAdd(qpsIncrease);
-                System.out.println("update qps to " + qps);
-            }
-        });
-        this.updateQpsThread.setDaemon(true);
-        this.updateQpsThread.start();
+        if (startQpsUpdater) {
+            ConfigUtil.startIncreasingQpsThread(qps, maxQps, qpsIncrease, qpsTimeDelta);
+        }
     }
 
     @Override
