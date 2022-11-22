@@ -3,7 +3,7 @@ package task.common;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.storm.executor.ScheduledStrategy;
+import org.apache.storm.executor.strategy.StrategyType;
 
 public class CommandLine {
     public static class CommandConfig {
@@ -70,7 +70,7 @@ public class CommandLine {
 
         boolean useThreadPool = cli.hasOption("useThreadPool");
         int threads = cli.hasOption("threads") ? Integer.parseInt(cli.getOptionValue("threads")) : 4;
-        String threadPoolStrategy = cli.hasOption("threadPoolStrategy") ? cli.getOptionValue("threadPoolStrategy") : ScheduledStrategy.Strategy.Fair.name();
+        String threadPoolStrategy = cli.hasOption("threadPoolStrategy") ? cli.getOptionValue("threadPoolStrategy") : StrategyType.Fair.name();
         int qps = cli.hasOption("qps") ? Integer.parseInt(cli.getOptionValue("qps")) : 1000;
         int maxThreads = cli.hasOption("maxThreads") ? Integer.parseInt(cli.getOptionValue("maxThreads")) : 4;
         int maxWorkers = cli.hasOption("maxWorkers") ? Integer.parseInt(cli.getOptionValue("maxWorkers")) : 1;
