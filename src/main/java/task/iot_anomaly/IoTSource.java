@@ -34,6 +34,7 @@ public class IoTSource extends BaseRichSpout {
     private int qpsIncrease;
     private long qpsTimeDelta;
     private boolean startQpsUpdater = false;
+    private boolean testPoolUpdater = false;
     private int totalCount = 0;
 
     public IoTSource(int minQps, int maxQps, int increase, long timeDelta) {
@@ -42,6 +43,11 @@ public class IoTSource extends BaseRichSpout {
         this.maxQps = maxQps;
         this.qpsIncrease = increase;
         this.qpsTimeDelta = timeDelta;
+    }
+
+    public IoTSource(boolean testPoolUpdater) {
+        this.qps = new AtomicInteger(0);
+        this.testPoolUpdater = testPoolUpdater;
     }
 
     public IoTSource(int qps) {
@@ -66,6 +72,9 @@ public class IoTSource extends BaseRichSpout {
         this.collector = collector;
         if (startQpsUpdater) {
             ConfigUtil.startIncreasingQpsThread(qps, maxQps, qpsIncrease, qpsTimeDelta);
+        } else if (testPoolUpdater) {
+            ConfigUtil.simulateFlowSurge(qps, 10 * 60 * 1000L, 3 * 60 * 1000L,
+                    300, new int[]{1000, 2000});
         }
     }
 
