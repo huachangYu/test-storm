@@ -29,12 +29,13 @@ public class IoTSource extends BaseRichSpout {
     private static List<String> allLines = getAllLines();
     private SpoutOutputCollector collector;
     private long sourceStartTime = -1;
-    private volatile AtomicInteger qps;
+    private AtomicInteger qps;
     private int maxQps;
     private int qpsIncrease;
     private long qpsTimeDelta;
     private boolean startQpsUpdater = false;
     private boolean testPoolUpdater = false;
+    private boolean testWorkerUpdater = false;
     private int totalCount = 0;
 
     public IoTSource(int minQps, int maxQps, int increase, long timeDelta) {
@@ -48,6 +49,12 @@ public class IoTSource extends BaseRichSpout {
     public IoTSource(boolean testPoolUpdater) {
         this.qps = new AtomicInteger(0);
         this.testPoolUpdater = testPoolUpdater;
+    }
+
+    public IoTSource(boolean testPoolUpdater, boolean testWorkerUpdater) {
+        this.qps = new AtomicInteger(0);
+        this.testPoolUpdater = testPoolUpdater;
+        this.testWorkerUpdater = testWorkerUpdater;
     }
 
     public IoTSource(int qps) {
@@ -75,6 +82,8 @@ public class IoTSource extends BaseRichSpout {
         } else if (testPoolUpdater) {
             ConfigUtil.simulateFlowSurge(qps, 10 * 60 * 1000L, 3 * 60 * 1000L,
                     300, new int[]{1000, 2000});
+        } else if (testWorkerUpdater) {
+            ConfigUtil.simulateFlowIncrease(qps, 10 * 60 * 1000L, new int[]{300, 2000, 4000});
         }
     }
 

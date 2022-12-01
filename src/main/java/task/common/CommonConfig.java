@@ -8,4 +8,5 @@ public class CommonConfig {
             : "/share/data/smoke/dataset.csv";
     public static volatile String wineCsvPath = isLocal ? "data/wine/winequality-white.csv"
             : "/share/data/wine/winequality-white.csv";
+    public static volatile String qpsFilePath = isLocal ? "data/qps.tmp" : "/share/qps.tmp";
 }

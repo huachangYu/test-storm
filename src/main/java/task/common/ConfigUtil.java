@@ -2,6 +2,13 @@ package task.common;
 
 import org.apache.storm.Config;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -61,5 +68,55 @@ public class ConfigUtil {
         });
         updateQpsThread.setDaemon(true);
         updateQpsThread.start();
+    }
+
+    public static void simulateFlowIncrease(AtomicInteger qps, long timeDelta, int[] qpsList) {
+        Thread updateQpsThread = new Thread(() -> {
+            qps.set(getQpsFromFile(CommonConfig.qpsFilePath, 0));
+            System.out.printf("[simulateFlowIncrease] when start, qps=%d, timeDelta=%d, qpsList=%s\n",
+                    qps.get(), timeDelta, Arrays.toString(qpsList));
+            while (true) {
+                try {
+                    for (int val : qpsList) {
+                        if (qps.get() > val) {
+                            continue;
+                        }
+                        qps.set(val);
+                        writeQpsToFile(CommonConfig.qpsFilePath, val);
+                        Thread.sleep(timeDelta);
+                    }
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        updateQpsThread.setDaemon(true);
+        updateQpsThread.start();
+    }
+
+    public static int getQpsFromFile(String path, int defaultVal) {
+        try {
+            if (!(new File(path)).exists()) {
+                return defaultVal;
+            }
+            BufferedReader in = new BufferedReader(new FileReader(path));
+            String str = in.readLine();
+            return Integer.parseInt(str);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return defaultVal;
+    }
+
+    public static void writeQpsToFile(String path, int val) {
+        try {
+            File file =new File(path);
+            FileWriter fileWriter = new FileWriter(file);
+            BufferedWriter bufferWriter = new BufferedWriter(fileWriter);
+            bufferWriter.write(Integer.toString(val));
+            bufferWriter.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

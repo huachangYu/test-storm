@@ -28,6 +28,8 @@ public class IoTBenchmark {
                     commandConfig.increaseQps, commandConfig.timeDeltaQps);
         } else if (commandConfig.testPoolUpdater) {
             source = new IoTSource(true);
+        } else if (commandConfig.testWorkerUpdater) {
+            source = new IoTSource(false, true);
         } else {
             source = new IoTSource(commandConfig.qps);
         }
